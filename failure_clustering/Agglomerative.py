@@ -1,6 +1,4 @@
 import numpy as np
-from scipy.spatial.distance import pdist, squareform
-from FailureDistance import FailureDistance
 
 class Agglomerative:
     def __init__(self, linkage):
@@ -74,6 +72,8 @@ class Agglomerative:
         return self.labels, self.mdist
 
 if __name__ == "__main__":
+    from FailureDistance import FailureDistance
+
     X = np.array([
         [0, 1, 1, 0, 1, 0], # coverage of t0
         [1, 0, 0, 1, 0, 0], # coverage of t1
