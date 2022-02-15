@@ -1,7 +1,8 @@
 import numpy as np
+import warnings
 from sklearn.utils import check_X_y
 from scipy.spatial.distance import pdist, squareform
-from utils.hypergraph import Hypergraph
+from .utils.hypergraph import Hypergraph
 
 class NoFailingTestError(Exception):
     """Raised when there is no failing test (0 not in y)"""
@@ -35,30 +36,40 @@ class FailureDistance:
 
     def get_distance_matrix(self, X, y, weights=None, return_index=False):
         """
-        Compute a distance matrix for the coverage matrix X and test results y
-        Example:
-        ```
-        X = np.array([
-            [0, 1, 1, 0, 1, 0], # coverage of t0 
-            [1, 0, 0, 1, 0, 0], # coverage of t1
-            [0, 1, 0, 1, 1, 0], # coverage of t2
-            [1, 1, 0, 0, 1, 1], # coverage of t3
-            [1, 1, 0, 0, 1, 1], # coverage of t4
-        ], dtype=bool)
+        Compute a pairwise failure distance matrix.
+        
+        Returns the square-form distance matrix. There are one optional
+        output.
 
-        y = np.array([
-            0, # t0: FAIL
-            0, # t1: FAIL
-            0, # t2: FAIL
-            1, # t3: PASS
-            1, # t4: PASS
-        ], dtype=bool)
-        ```
-        Return: a square-form distance matrix for failing test cases
+        * the indices of the array `y` that correspond to failing test cases
+        
+        Parameters
+        ----------
+        X : array_like
+            2-D coverage matrix with shape (# test cases, # components)
+        y : array_like
+            1-D test result vector with shape (# test cases, )
+        weights: array_like
+            1-D weight vector of components with shape (# components, )
+        return_index : bool, optional
+            If True, also return the indices of `y` that correspond to
+            failing test cases
+
+        Returns
+        -------
+        matrix : ndarray
+        a square-form distance matrix for failing test cases
+        failing_indices : ndarray, optional
+        The indices of the occurrences of the failing test cases in the
+        input array `y`. Only provided if `return_index` is True
         """
+        
         X, y = self.validate_input(X, y)
         if self.measure == 'hdist':
-            assert weights is not None
+            if weights is None:
+                raise Exception("No weights are provided")
+        else:
+            warnings.warn("The parameter w will be ignored")
 
         is_failure = (y == 0)
 
@@ -72,26 +83,7 @@ class FailureDistance:
 
         if return_index:
             # Return the original indices of failing test cases
-            index = np.where(y == 0)[0]
-            return matrix, index
+            failing_indices = np.where(is_failure)[0]
+            return matrix, failing_indices
         else:
             return matrix
-
-if __name__ == "__main__":
-    X = np.array([
-        [0, 1, 1, 0, 1, 0],
-        [1, 0, 0, 1, 0, 0],
-        [0, 1, 0, 1, 1, 0],
-        [1, 1, 0, 0, 1, 1],
-        [1, 1, 0, 0, 1, 1],
-    ], dtype=bool)
-    y = np.array([0, 0, 0, 1, 1], dtype=bool)
-    w = np.array([0.25, 0.40, 1.00, 1.00, 0.40, 0.00])
-
-    fd = FailureDistance(measure='hdist')
-    print("- measure: hdist")
-    print(fd.get_distance_matrix(X, y, weights=w))
-
-    fd = FailureDistance(measure='jaccard')
-    print("- measure: jaccard")
-    print(fd.get_distance_matrix(X, y, weights=w))
