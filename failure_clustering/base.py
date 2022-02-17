@@ -63,11 +63,14 @@ class FailureDistance:
         The indices of the occurrences of the failing test cases in the
         input array `y`. Only provided if `return_index` is True
         """
-        
+        X = np.asanyarray(X)
+        y = np.asanyarray(y)
+
         X, y = self.validate_input(X, y)
         if self.measure == 'hdist':
             if weights is None:
                 raise Exception("No weights are provided")
+            weights = np.asanyarray(weights)
         else:
             warnings.warn("The parameter w will be ignored")
 
