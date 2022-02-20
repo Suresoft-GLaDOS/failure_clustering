@@ -18,9 +18,7 @@ from failure_clustering.base import FailureDistance
 
 test_names = ["T1", "T2", "T3", "T4", "T5"]
 
-"""
-Coverage of T1, ..., T5
-"""
+# Coverage of T1, ..., T5
 X = [
     [0, 1, 1, 0, 1, 0], # Coverage of T1 
     [1, 0, 0, 1, 0, 0], # Coverage of T2
@@ -28,13 +26,11 @@ X = [
     [0, 1, 0, 1, 1, 0], # Coverage of T4
     [1, 1, 0, 0, 1, 1], # Coverage of T5
 ]
-"""
-Test results of T1, ..., T5
-"""
+
+# Test results of T1, ..., T5
 y = [0, 0, 1, 0, 1] # 0: FAIL, 1: PASS
-"""
-Calculating weights of program elements
-"""
+
+#Calculating weights of program elements
 sbfl = SBFL(formula='Tarantula')
 w = sbfl.fit_predict(X, y)
 print(w)
@@ -58,10 +54,8 @@ print(failure_indices)
 [0 1 3]
 """
 ```
-- Supported measures for `FailureDistance`:
-     ```
-    'jaccard', 'braycurtis', 'canberra', 'chebyshev', 'cityblock', 'correlation', 'cosine', 'dice', 'euclidean', 'hamming', 'jaccard', 'jensenshannon', 'kulsinski', 'kulczynski1', 'mahalanobis', 'matching', 'minkowski', 'rogerstanimoto', 'russellrao', 'seuclidean', 'sokalmichener', 'sokalsneath', 'sqeuclidean', 'yule', 'hdist'
-    ```
+- Supported measures for `FailureDistance`
+    - `jaccard`, `braycurtis`, `canberra`, `chebyshev`, `cityblock`, `correlation`, `cosine`, `dice`, `euclidean`, `hamming`, `jaccard`, `jensenshannon`, `kulsinski`, `kulczynski1`, `mahalanobis`, `matching`, `minkowski`, `rogerstanimoto`, `russellrao`, `seuclidean`, `sokalmichener`, `sokalsneath`, `sqeuclidean`, `yule`, `hdist`
 
 ### Running Agglomerative Hierarchical Clustering
 ```python
