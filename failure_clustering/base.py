@@ -28,9 +28,11 @@ class FailureDistance:
     
     @staticmethod
     def validate_input(X, y):
+        X = np.asanyarray(X)
+        y = np.asanyarray(y)
         X, y = check_X_y(X, y, accept_sparse=False, dtype=bool,
             ensure_2d=True, y_numeric=True, multi_output=False)
-        if np.invert(y).sum() == 0:
+        if (y==0).sum() == 0:
             raise NoFailingTestError
         return X, y
 
@@ -58,14 +60,11 @@ class FailureDistance:
         Returns
         -------
         matrix : ndarray
-        a square-form distance matrix for failing test cases
+            a square-form distance matrix for failing test cases
         failing_indices : ndarray, optional
-        The indices of the occurrences of the failing test cases in the
-        input array `y`. Only provided if `return_index` is True
+            The indices of the occurrences of the failing test cases in the
+            input array `y`. Only provided if `return_index` is True
         """
-        X = np.asanyarray(X)
-        y = np.asanyarray(y)
-
         X, y = self.validate_input(X, y)
         if self.measure == 'hdist':
             if weights is None:
