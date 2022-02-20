@@ -73,6 +73,11 @@ clustering = aggl.run(distance_matrix,
 
 for i, cluster in zip(failure_indices, clustering):
     print(f"Cluster of {test_names[i]}: {cluster}")
+"""
+Cluster of T1: 0
+Cluster of T2: 1
+Cluster of T4: 1
+"""
 ```
 
 - Available stopping criteria
