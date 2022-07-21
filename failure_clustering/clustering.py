@@ -1,4 +1,5 @@
 import numpy as np
+import numbers
 
 class Agglomerative:
     """
@@ -22,9 +23,12 @@ class Agglomerative:
         ----------
         distance_matrix : array_like
             a square-form distance matrix for failing test cases
-        stopping_criterion : str, optional
+        stopping_criterion : str, number, optional
             a stopping criterion used to decide where to stop merging clusters. 
-            Can be None or “min_intercluster_distance_elbow”
+            Options:
+            - None
+            - “min_intercluster_distance_elbow”
+            - a threshold, e.g., 0.5
 
         Returns
         -------
@@ -37,7 +41,9 @@ class Agglomerative:
             Only provided if `stopping_criterion` is not None.
         """
         criteria = ['min_intercluster_distance_elbow']
-        assert stopping_criterion is None or stopping_criterion in criteria
+        assert stopping_criterion is None\
+            or isinstance(stopping_criterion, numbers.Number)\
+            or stopping_criterion in criteria
         # Initialize minimum distances and labels history
         # mdist[i] is the minimum intercluster distance when # clusters is N - i
         self.mdist = [] 
@@ -92,11 +98,16 @@ class Agglomerative:
 
             self.labels.append(new_label)
 
-        self.mdist.append(1)
+        self.mdist.append(1.)
 
         if stopping_criterion is None:
             assert len(self.labels) == N and len(self.mdist) == N
             return self.labels
+        elif isinstance(stopping_criterion, numbers.Number):
+            for mdist, label in zip(self.mdist, self.labels):
+                if mdist > stopping_criterion:
+                    return label
+            return self.labels[-1]
         elif stopping_criterion == 'min_intercluster_distance_elbow':
             elbow_point = np.argmax(np.diff([0.0] + self.mdist))
             return self.labels[elbow_point]

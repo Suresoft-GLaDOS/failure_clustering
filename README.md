@@ -12,14 +12,17 @@ python -m pip install -r requirements.txt
 git clone https://github.com/Suresoft-GLaDOS/failure_clustering
 cd failure_clustering
 pip install setuptools
-pip install -e .
+python setup.py install
 ```
 
 ## Getting started
 
 ! The full example script is provided in [`main.ipynb`](./main.ipynb)
+
 ### Calculating the distance between failing test cases via [hypergraph modeling](https://arxiv.org/pdf/2104.10360.pdf)
+
 - prerequisite: [`SBFL-engine`](https://github.com/Suresoft-GLaDOS/SBFL)
+
 ```python
 from sbfl.base import SBFL
 from failure_clustering.base import FailureDistance
@@ -66,22 +69,44 @@ print(failure_indices)
     - `jaccard`, `braycurtis`, `canberra`, `chebyshev`, `cityblock`, `correlation`, `cosine`, `dice`, `euclidean`, `hamming`, `jaccard`, `jensenshannon`, `kulsinski`, `kulczynski1`, `mahalanobis`, `matching`, `minkowski`, `rogerstanimoto`, `russellrao`, `seuclidean`, `sokalmichener`, `sokalsneath`, `sqeuclidean`, `yule`, `hdist`
 
 ### Running Agglomerative Hierarchical Clustering
-```python
-from failure_clustering.clustering import Agglomerative
 
-aggl = Agglomerative(linkage='complete')
-clustering = aggl.run(distance_matrix, 
-    stopping_criterion='min_intercluster_distance_elbow')
+You can provide a stopping criterion when performing clustering. If the stopping criterion is not provided, a list of clustering results at all iterations are returned.
 
-for i, cluster in zip(failure_indices, clustering):
-    print(f"Cluster of {test_names[i]}: {cluster}")
-"""
-Cluster of T1: 0
-Cluster of T2: 1
-Cluster of T4: 1
-"""
-```
+1. The stopping criterion can be a threshold value, such as `0.5`. The clustering stops once the minimum intercluster distance exceeds the threshold.
+    ```python
+    from failure_clustering.clustering import Agglomerative
 
-- Available stopping criteria
-  - `min_intercluster_distance_elbow` stops merging clusters at the elbow point of the minimum intercluster distance curve
-    - `aggl.mdist` stores the minimum intercluster distance values
+    aggl = Agglomerative(linkage='complete')
+    clustering = aggl.run(distance_matrix, stopping_criterion=0.5)
+
+    print(clustering)
+    for i, cluster in zip(failure_indices, clustering):
+        print(f"Cluster of {test_names[i]}: {cluster}")
+    """
+    [0, 1, 1]
+    Cluster of T1: 0
+    Cluster of T2: 1
+    Cluster of T4: 1
+    """
+    ```
+    - FYI, `aggl.mdist` stores the minimum intercluster distance at each iteration.
+
+2. `min_intercluster_distance_elbow` stops merging clusters at the elbow point of the minimum intercluster distance curve
+
+    ```python
+    from failure_clustering.clustering import Agglomerative
+
+    aggl = Agglomerative(linkage='complete')
+    clustering = aggl.run(distance_matrix, 
+        stopping_criterion='min_intercluster_distance_elbow')
+
+    print(clustering)
+    for i, cluster in zip(failure_indices, clustering):
+        print(f"Cluster of {test_names[i]}: {cluster}")
+    """
+    [0, 1, 1]
+    Cluster of T1: 0
+    Cluster of T2: 1
+    Cluster of T4: 1
+    """
+    ```
